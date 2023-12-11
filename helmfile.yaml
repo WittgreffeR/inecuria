@@ -1,0 +1,40 @@
+# setup environments
+environments:
+  qa:
+    values:
+      - kubeContext: arn:aws:eks:eu-west-1:827570723211:cluster/cluster-qa
+      - namespace: failed-imports
+      - releasePrefix: ""
+  production:
+    values:
+      - kubeContext: arn:aws:eks:eu-west-1:827570723211:cluster/cluster-prod
+      - namespace: failed-imports
+      - releasePrefix: ""
+
+---
+
+# Set default helm arguments
+helmDefaults:
+  wait: true
+  kubeContext: "{{ .Environment.Values.kubeContext }}"
+
+# Templates which can be re-used between multiple releases
+# Note that templates use a slightly different structure for wrapping the templated values
+templates:
+  # Creates a release name from the prefix and label
+  name: &name
+    name: "{{`{{ if .Environment.Values.releasePrefix }}`}}{{`{{ .Environment.Values.releasePrefix }}`}}-{{`{{ end }}`}}{{`{{ .Release.Labels.name }}`}}"
+
+# Configuration the Helm releases
+releases:
+  - chart: "./charts/failed-imports"
+    labels:
+      # Release Name without any prefix
+      name: "failed-imports"
+    <<: *name
+    # Namespace comes from the environment
+    namespace: "{{ .Environment.Values.namespace }}"
+    values:
+      - "./charts/failed-imports/values-{{ .Environment.Name }}.yaml"
+    secrets:
+      - "./charts/failed-imports/secrets.{{ .Environment.Name }}.yaml"

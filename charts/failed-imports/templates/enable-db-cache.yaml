@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "failed-imports.fullname" . }}-enable-db-cache
+  labels:
+    {{- include "failed-imports.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: enable-db-cache
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation
+    "helm.sh/hook-weight": "1"
+spec:
+  activeDeadlineSeconds: 300
+  template:
+    metadata:
+      name: {{ template "failed-imports.fullname" . }}-enable-db-cache
+      labels:
+        {{- include "failed-imports.commonLabels" . | nindent 8 }}
+        app.kubernetes.io/component: enable-db-cache
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: enable-db-cache
+          image: "{{ .Values.app.django.image.repository }}:{{ default .Values.app.django.image.tag .Chart.AppVersion }}"
+          command: ["/bin/sh"]
+          args: [
+            "-ec",
+            "python manage.py createcachetable"
+          ]
+          envFrom:
+            - secretRef:
+                name: {{ template "failed-imports.fullname" . }}-db-migration-secrets
+          env:
+            {{- range $key, $value := .Values.app.env }}
+            - name: "{{ $key }}"
+              value: "{{ $value }}"
+            {{- end }}
+            {{- range $key, $value := .Values.app.django.env }}
+            - name: "{{ $key }}"
+              value: "{{ $value }}"
+            {{- end }}

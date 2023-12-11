@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Failed Imports{% endblock title %}
+
+{% block content %}
+  <div class="main_table">
+    <div class="header">
+      <img src="../../../static/images/design/logo-tdi-digital.svg" alt="TDi Digital"/>
+    </div>
+
+    <h1>Failed Imports</h1>
+
+    <table>
+      <tr>
+        <th class="data_id">Data ID</th>
+        <th class="name">Data Field Name</th>
+        <th class="type">Data Type</th>
+        <th class="reason">Reason for Failure</th>
+        <th class="time">Time of Last Failure</th>
+      </tr>
+      {% for fimport in failed_imports %}
+        <tr>
+          {% if fimport.url %}
+            <td class="data_id"><a href = {{ fimport.url }} target="_blank">{{ fimport.id }}</a></td>
+          {% else %}
+            <td class="data_id">{{ fimport.id }}</td>
+          {% endif %}
+          <td class="name">{{ fimport.name }}</td>
+          <td class="type">{{ fimport.data_type }}</td>
+          <td class="reason">{{ fimport.reason }}</td>
+          <td class="time">{{ fimport.updated_at }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+{% endblock content %}

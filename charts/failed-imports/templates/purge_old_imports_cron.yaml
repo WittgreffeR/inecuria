@@ -1,0 +1,19 @@
+{{- if .Values.app.purgeOldImports.cron.enabled }}
+apiVersion: batch/v1beta1
+kind: CronJob 
+metadata:
+  name: {{ template "failed-imports.fullname" . }}-purge-old-imports-cron
+  labels:
+    {{- include "failed-imports.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.app.name }}
+spec:
+  schedule: {{ .Values.app.purgeOldImports.cron.schedule }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 1200
+      template:
+        {{- include "purgeOldImports.job" . | nindent 8 }}
+{{- end }}

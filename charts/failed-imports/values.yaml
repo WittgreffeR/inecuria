@@ -1,0 +1,118 @@
+# Values files are used to populate the template values inside of the templated Kubernetes Resources.
+# There is a values.yaml file which is always loaded in and should contain the default values.
+# There is per-environment values files, so value-qa.yaml and values-production.yaml.
+# There are also secret files which are encrypted value files.
+#
+# There is no formal structure for how to layout your values, it is free form yaml (or json), but there best practices.
+# https://helm.sh/docs/chart_best_practices/values/
+# Consider how values are being used in templates and try group sections together.
+app:
+  # The name of the component.
+  # We us this when creating multiple Deployments, Services and Ingress Resources inside a chart without them conflicting.
+  name: app
+
+  # How many Pods to run
+  replicaCount: 1
+
+  # Defines the strategy used when a new set of containers is deployed.
+  # By default it will use a RollingUpdate
+  # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # maxSurge at 100% will bring up all of the new Pods at the same time.
+      maxSurge: 100%
+      # maxUnavailable at 0 will mean that a new Pod must be Ready before the old one is removed.
+      maxUnavailable: 0
+
+  # Additional pod annotations
+  podAnnotations: {}
+
+  # Enable or disable whether Pods will be forced to place on separate Nodes
+  enablePodAntiAffinity: true
+  # Additional affinity rules
+  # https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  service:
+    # Type should always be ClusterIP
+    type: ClusterIP
+    port: 80
+  
+  ingress:
+    # Ingress can be disabled for services which should be cluster bound
+    enabled: true
+    annotations:
+      # This will always be nginx
+      kubernetes.io/ingress.class: nginx
+    hosts: []
+
+
+  purgeOldImports:
+    onDeploy:
+      enabled: true
+    cron:
+      enabled: true
+      schedule: "0 0 * * *"
+    days: 7
+
+  emailLatestFailures:
+    onDeploy:
+      enabled: false
+    cron:
+      enabled: true
+      schedule: "0 0 * * 0"
+    values:
+      days: 7
+      emails: rwittgreffe@tdi-sustainability.com
+
+
+  django:
+    name: django
+    
+    image:
+      pullPolicy: IfNotPresent
+      # The container repository from where the image is pulled
+      repository: 827570723211.dkr.ecr.eu-west-1.amazonaws.com/tdi/failed-imports
+      tag: # Uses AppVersion by default
+    
+    # Which port does the application run on.
+    containerPort: 8000
+    # Health-check path. Should return a 200.
+    healthCheckPath: /health-check/
+
+    # Container environment variables
+    env:
+      INTEGRATE_WITH_SENTRY: true
+      SERVER_EMAIL: no-reply@tdi-digital.com
+      EMAIL_HOST: email-smtp.eu-west-1.amazonaws.com
+      EMAIL_PORT: 587
+      EMAIL_HOST_USER: AKIA4BLYPDGFZVXULN7X
+
+  
+    # https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+    livenessProbe:
+      failureThreshold: 3
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    readinessProbe:
+      failureThreshold: 3
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    
+    # Configure RAM and CPU requests and limits.
+    # Low values are provided by default, check that these are okay for your application.
+    resources:
+      requests:
+        cpu: "1m"
+        memory: "50Mi"
+      limits:
+        memory: "100Mi"
+
+    security:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: false

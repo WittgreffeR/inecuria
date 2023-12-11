@@ -1,0 +1,12 @@
+creation_rules:
+  - path_regex: \.production\.yaml$
+    kms: arn:aws:kms:eu-west-1:827570723211:alias/failed-imports-sops
+    role: arn:aws:iam::827570723211:role/iam-role-for-failed-imports-sops
+
+  - path_regex: \.qa\.yaml$
+    kms: arn:aws:kms:eu-west-1:827570723211:alias/failed-imports-sops
+    role: arn:aws:iam::827570723211:role/iam-role-for-failed-imports-sops
+
+  - path_regex: "(.env.example|.env.test)"
+    kms: arn:aws:kms:eu-west-1:827570723211:alias/failed-imports-sops
+    role: arn:aws:iam::827570723211:role/iam-role-for-failed-imports-sops

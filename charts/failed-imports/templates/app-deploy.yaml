@@ -1,0 +1,158 @@
+{{/*
+This is defines a Kubernetes Deployment which deploys and manages the lifecycle of Pods.
+This also contains the definition for your Pod and containers to be run.
+https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+*/}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Name is based on the Release name
+  name: {{ template "failed-imports.app.fullname" . }}
+  # Standard set of labels for consistency
+  labels:
+    {{- include "failed-imports.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.app.name }}
+spec:
+  # Set how many Pods we want to run
+  replicas: {{ .Values.app.replicaCount }}
+  # This selects which Pods should be controlled by the Deployment.
+  # Be careful with this because misconfiguration will cause change behaviour.
+  # We want to select all of the Pods, irrespective of which version they are running.
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/name: {{ template "failed-imports.name" . }}
+      app.kubernetes.io/component: {{ .Values.app.name }}
+  # The strategy defines how the rollout of a new release happens.
+  # Is it a rolling deployment or a swap over? How many new Pods are brought up at a time? etc..
+  strategy: {{ toYaml .Values.app.updateStrategy | nindent 4 }}
+  # This now the Pod Template. You define your Pod Resource inside of here as usual.
+  # https://kubernetes.io/docs/concepts/workloads/pods/
+  template:
+    metadata:
+      # Labels for our Pods. These will normally be the same as the labels used by the Deployment.
+      labels:
+        {{- include "failed-imports.commonLabels" . | nindent 8 }}
+        app.kubernetes.io/component: {{ .Values.app.name }}
+      # Annotations can be used to attach arbitrary information to Pods. Similar to Labels.
+      annotations:
+        # This annotation contains a hash of the contents of the secret file.
+        # This means that if the secret file is changed then it will force a new deployment, and fetch the new config.
+        # This is the common way to ensure config stays up to date when not using hot refresh.
+        checksum/secret: {{ include (print $.Template.BasePath "/app-secrets.yaml") . | sha256sum }}
+        {{- if .Values.app.podAnnotations }}
+{{ toYaml .Values.app.podAnnotations | indent 8 }}
+        {{- end }}
+    spec:
+      # Define the containers that will run inside our Pod. Pods can have one or many containers.
+      containers:
+          # The name of the container inside the Pod. This only matters in multi-container Pods.
+        - name: {{ .Values.app.django.name }}
+          # The image run inside the container
+          image: "{{ .Values.app.django.image.repository }}:{{ default .Values.app.django.image.tag .Chart.AppVersion }}"
+          # When should the image be pulled? Either always or when it's not already present on the Node.
+          imagePullPolicy: {{ .Values.app.django.image.pullPolicy }}
+
+          securityContext:
+            allowPrivilegeEscalation: {{ .Values.app.django.security.allowPrivilegeEscalation}}
+            readOnlyRootFilesystem: {{ .Values.app.django.security.readOnlyRootFilesystem}}
+
+          # Requests and limits for physical resources, i.e. CPU, RAM and Disk.
+          # Request is used when scheduling the Pod to a Node
+          # Limit is what the container actually sees.
+          # It's possible for the sum of the limits on a Node to be greater than 100%.
+          resources: {{ toYaml .Values.app.django.resources | nindent 12 }}
+          # Which ports are exposed to the Service
+          ports:
+            - name: http
+              containerPort: {{ .Values.app.django.containerPort }}
+              protocol: TCP
+          # Environment variables as a map
+          env:
+          {{- range $key, $value := .Values.app.env }}
+            - name: "{{ $key }}"
+              value: "{{ $value }}"
+          {{- end }}
+          {{- range $key, $value := .Values.app.django.env }}
+            - name: "{{ $key }}"
+              value: "{{ $value }}"
+          {{- end }}
+            - name: "CHART"
+              value: {{ .Chart.Name }}-{{ .Chart.Version }}
+
+          # Can load environment variables directly from ConfigMaps and Secrets
+          envFrom:
+            - secretRef:
+                name: {{ template "failed-imports.fullname" . }}
+          # Readiness Probes are used to determine when a Pod is Ready.
+          # A Pod which is not Ready will taken out of a Service, meaning it will no longer receive web traffic.
+          # This mostly affects HTTP and RPC applications.
+          # https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+          readinessProbe:
+            # Here we define the HTTP endpoint to check for a 200 response.
+            # Other health-check mechanisms, such a running a command, are available
+            httpGet:
+              path: {{ .Values.app.django.healthCheckPath }}
+              port: {{ .Values.app.django.containerPort }}
+            # How long to wait after the Pod is started to begin health-check
+            initialDelaySeconds: {{ .Values.app.django.readinessProbe.initialDelaySeconds }}
+            # How often to run the health-check
+            periodSeconds: {{ .Values.app.django.readinessProbe.periodSeconds }}
+            # After the timeout the health-check is failed
+            timeoutSeconds: {{ .Values.app.django.readinessProbe.timeoutSeconds }}
+            # When in the failure state, how many successes are needed to become Ready
+            successThreshold: {{ .Values.app.django.readinessProbe.successThreshold }}
+            # When in success state, how many failures are need to become Not-Ready
+            failureThreshold: {{ .Values.app.django.readinessProbe.failureThreshold }}
+          # A Liveness Probes are used to determine that the application has failed and is in an unrecoverable state.
+          # Failure of the Liveness Probe will result in the container being restarted.
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.app.django.healthCheckPath }}
+              port: {{ .Values.app.django.containerPort }}
+            initialDelaySeconds: {{ .Values.app.django.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.app.django.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.app.django.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.app.django.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.app.django.livenessProbe.failureThreshold }}
+
+      # Affinities are used to add additional scheduling requirements and suggestions for the Pods.
+      # The three kind of affinities are: NodeAffinities, PodAffinities and PodAntiAffinities
+      # Be aware that Affinities can result in Pods failing to be scheduled to any Node if the Affinities cannot be satisfied.
+      # https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+      affinity:
+        # This sets the Operating System and Architecture requirements for this Pod.
+        # Kubernetes is capable of running multiple OSs and Archs inside a cluster.
+        # For example, amd64(x86) and arm64. Or linux and windows.
+        # It's best practice to include this since containers must be built for a particular Arch and OS.
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/os
+                    operator: In
+                    values:
+                      - linux
+                  - key: kubernetes.io/arch
+                    operator: In
+                    values:
+                      - amd64
+
+        # We have found that it is common to want Pods on separate Node for additional fault tolerance.
+        # If one Node begins to fail then the Pods on other Nodes will be unaffected.
+        # It also more evenly spreads the work load for particularly CPU or RAM hungry applications.
+        # Therefore this section is not mandatory, but provided for your convenience.
+        {{- if .Values.app.enablePodAntiAffinity }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/instance: {{ .Release.Name }}
+                  app.kubernetes.io/name: {{ template "failed-imports.name" . }}
+                  app.kubernetes.io/component: {{ .Values.app.name }}
+                  app.kubernetes.io/version: {{ quote .Chart.AppVersion }}
+              topologyKey: "kubernetes.io/hostname"
+        {{- end }}
+      {{- if .Values.app.affinity }}
+{{ toYaml .Values.app.affinity | indent 8 }}
+      {{- end }}

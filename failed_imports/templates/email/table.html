@@ -1,0 +1,60 @@
+<head>
+  <style>
+    table {
+      max-width: max-content;
+      margin: auto;
+      border-collapse: collapse;
+      border-spacing: 0;
+    }
+
+    th, td {
+      text-align: center;
+      padding: 0.5em;
+      border: 2px solid;
+      overflow: auto;
+    }
+
+    th {
+      padding: 0.75em 0.5em;
+      background: #f7e44c;
+    }
+
+    .data_id {
+      word-break: break-word;
+      max-width: 20em;
+    }
+
+    .name {
+      max-width: 24em;
+    }
+
+    .reason {
+      max-width: 20em;
+    }
+
+    .time {
+      min-width: 7em;
+    }
+  </style>
+</head>
+
+<p class="intro">The following assets failed to import within the last {{ correct_grammar }}. See the <a href=https://{{ fis_website }}.tdi-digital.com>Failed Imports Service site</a> for more information.</p>
+
+<div class="main_table">
+  <table>
+    <tr>
+      <th class="name">Data Field Name</th>
+      <th class="type">Data Type</th>
+      <th class="reason">Reason for Failure</th>
+      <th class="time">Time of Last Failure</th>
+    </tr>
+    {% for fimport in failed_imports %}
+      <tr>
+        <td class="name">{{ fimport.name }}</td>
+        <td class="type">{{ fimport.data_type }}</td>
+        <td class="reason">{{ fimport.reason }}</td>
+        <td class="time">{{ fimport.updated_at }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>

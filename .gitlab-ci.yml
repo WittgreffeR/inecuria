@@ -1,0 +1,20 @@
+stages:
+  - code-checks
+  - build
+  - deploy-qa
+  - deploy-prod
+
+variables:
+  ENVIRONMENT: test
+
+include:
+  - local: ".gitlab/ci/code-checks.yml"
+  - local: ".gitlab/ci/build.yml"
+    rules:
+      - if: $CI_COMMIT_BRANCH == "main"
+  - local: ".gitlab/ci/deploy-qa.yml"
+    rules:
+      - if: $CI_COMMIT_BRANCH == "main"
+  - local: ".gitlab/ci/deploy-prod.yml"
+    rules:
+      - if: $CI_COMMIT_BRANCH == "main"

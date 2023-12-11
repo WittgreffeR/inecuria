@@ -1,0 +1,19 @@
+{{- if .Values.app.emailLatestFailures.cron.enabled }}
+apiVersion: batch/v1beta1
+kind: CronJob 
+metadata:
+  name: {{ template "failed-imports.fullname" . }}-email-latest-failures-cron
+  labels:
+    {{- include "failed-imports.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.app.name }}
+spec:
+  schedule: {{ .Values.app.emailLatestFailures.cron.schedule }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 1200
+      template:
+        {{- include "emailLatestFailures.job" . | nindent 8 }}
+{{- end }}

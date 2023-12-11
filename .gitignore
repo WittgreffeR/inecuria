@@ -1,0 +1,13 @@
+# Byte-compiled
+__pycache__/
+*.py[cod]
+
+# Environments
+.env.development
+
+# Assets
+node_modules/
+.parcel-cache/
+static_build/
+.DS_Store
+static/

@@ -1,0 +1,17 @@
+variables:
+  AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
+  AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+  AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+
+deploy-prod:
+  stage: deploy-prod
+  image: 827570723211.dkr.ecr.eu-west-1.amazonaws.com/tdi/k8s-deployer:latest
+  when: manual
+  allow_failure: false
+  before_script:
+    - aws eks update-kubeconfig --region eu-west-1 --name cluster-prod
+    - kubectl cluster-info
+    - helmfile init --force
+  script:
+    - ./scripts/replace-image-tag.sh $CI_COMMIT_SHORT_SHA
+    - helmfile apply --environment production --suppress-secrets --args "--atomic --cleanup-on-fail"

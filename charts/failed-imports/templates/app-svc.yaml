@@ -1,0 +1,34 @@
+{{/*
+Defines the Kubernetes Service which we use to expose the ports from our Pods to the cluster.
+Without this other Pods wouldn't be able to communicate with our Pod.
+The Service acts as a Gateway to multiple Pods, bringing them together under a single domain.
+It provides load balancing via round-robin for all Ready Pods.
+Pods which are not Ready will not receive traffic from the Service.
+https://kubernetes.io/docs/concepts/services-networking/service/
+*/}}
+apiVersion: v1
+kind: Service
+metadata:
+  # Name based on the Release name
+  name: {{ template "failed-imports.app.fullname" . }}
+  # Standard set of labels for consistency
+  labels:
+    {{- include "failed-imports.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.app.name }}
+spec:
+  # There is different types of Services.
+  # For Charts running in the EKS cluster this is always 'ClusterIP'
+  type: {{ .Values.app.service.type }}
+  # Map ports from the Pod to the Service.
+  # E.g. the port on the container called 'http' will be available as port 80 on the service
+  ports:
+    - name: http
+      port: {{ .Values.app.service.port }}
+      protocol: TCP
+      targetPort: http
+  # Select which Pods to include in the Service.
+  # You probably want to select all the Pods controlled by the Deployment, so should use the same selector.
+  selector:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ template "failed-imports.name" . }}
+    app.kubernetes.io/component: {{ .Values.app.name }}

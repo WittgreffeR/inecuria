@@ -1,0 +1,41 @@
+{{/*
+This is the Kubernetes Ingress Resource which describes how our application is available to the public internet.
+This will get added to our Ingress Controller.
+*/}}
+{{- if .Values.app.ingress.enabled -}}
+{{- $serviceName := include "failed-imports.app.fullname" . -}}
+{{- $servicePort := .Values.app.service.port -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  # Name based on Release name
+  name: {{ template "failed-imports.app.fullname" . }}
+  # Standard set of labels for consistency
+  labels:
+    {{- include "failed-imports.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.app.name }}
+  # Ingress resource annotations are generally very important.
+  # They can be used to add IP whitelisting, rate limiting, authentication, etc, all controlled by the Ingress Controller.
+  {{- with .Values.app.ingress.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+  {{- end }}
+spec:
+  rules:
+    # This is your routing rules for incoming traffic.
+    # A list of domains and which Services they are associated with.
+    # Most applications will have a single domain mapped to a single Service, at the root (/) path.
+    # But you can create complex configurations of your Services here, such as having your API Service at /api/.
+    {{- range .Values.app.ingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $serviceName }}
+                port:
+                  number: {{ $servicePort }}
+    {{- end }}
+{{- end }}

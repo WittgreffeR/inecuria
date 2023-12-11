@@ -1,0 +1,52 @@
+{{/*
+This defines a NetworkPolicy Kubernetes Resource.
+A NetworkPolicy is an optional resource, so is not required to get your application running on Kubernetes.
+NetworkPolicies are a security feature to restrict where inbound traffic can come from and outbound can go.
+For example, you can block an application from being able to make requests to a Database it doesn't need.
+*/}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  # Name based on Release name
+  name: {{ template "failed-imports.app.fullname" . }}
+  # Standard set of labels for consistency
+  labels:
+    {{- include "failed-imports.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.app.name }}
+spec:
+  # Select which Pods that the NetworkPolicy applies to.
+  # You probably want to select all the Pods in the Deployment, so use the same selector.
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/name: {{ template "failed-imports.name" . }}
+      app.kubernetes.io/component: {{ .Values.app.name }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow ingress from the ingress Namespace.
+    # This allows traffic from the public internet to reach our Pod.
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress
+  egress:
+    # Allow DNS requests through.
+    - to:
+        - ipBlock:
+            cidr: 10.0.0.0/8
+      ports:
+        - protocol: UDP
+          port: 53 # DNS
+        - protocol: TCP
+          port: 53 # DNS
+        - protocol: TCP
+          port: 5432 # PostgreSQL
+    # Block outgoing traffic to the outside world.
+    # Internal IPs for our AWS account are excluded.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8

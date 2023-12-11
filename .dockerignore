@@ -1,0 +1,18 @@
+# Ignore everything
+**
+
+# Except
+!config/
+!gunicorn.conf.py
+!manage.py
+!Pipfile
+!Pipfile.lock
+!failed_imports
+!static_src
+!.babelrc
+!postcss.config.js
+!.eslintrc
+!.sasslintrc
+!package.json
+!package-lock.json
+!webpack.config.js

@@ -1,0 +1,37 @@
+{{- if .Values.app.purgeOldImports.onDeploy.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "failed-imports.fullname" . }}-purge-old-imports
+  labels:
+    {{- include "failed-imports.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.app.name }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation
+    "helm.sh/hook-weight": "2"
+spec:
+  activeDeadlineSeconds: 1200
+  template:
+    {{- include "purgeOldImports.job" . | nindent 4 }}
+{{- end }}
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ template "failed-imports.fullname" . }}-purge-old-imports-secrets
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "failed-imports.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: purge-old-imports
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation
+    "helm.sh/hook-weight": "-1"
+type: Opaque
+data:
+{{- range $key, $value := .Values.django.envSecrets }}
+  {{ $key }}: {{ $value | b64enc | quote }}
+{{- end }}
