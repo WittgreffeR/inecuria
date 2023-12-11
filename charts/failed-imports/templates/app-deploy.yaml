@@ -7,10 +7,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   # Name is based on the Release name
-  name: {{ template "failed-imports.app.fullname" . }}
+  name: {{ template "inecuria.app.fullname" . }}
   # Standard set of labels for consistency
   labels:
-    {{- include "failed-imports.commonLabels" . | nindent 4 }}
+    {{- include "inecuria.commonLabels" . | nindent 4 }}
     app.kubernetes.io/component: {{ .Values.app.name }}
 spec:
   # Set how many Pods we want to run
@@ -21,7 +21,7 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/instance: {{ .Release.Name }}
-      app.kubernetes.io/name: {{ template "failed-imports.name" . }}
+      app.kubernetes.io/name: {{ template "inecuria.name" . }}
       app.kubernetes.io/component: {{ .Values.app.name }}
   # The strategy defines how the rollout of a new release happens.
   # Is it a rolling deployment or a swap over? How many new Pods are brought up at a time? etc..
@@ -32,7 +32,7 @@ spec:
     metadata:
       # Labels for our Pods. These will normally be the same as the labels used by the Deployment.
       labels:
-        {{- include "failed-imports.commonLabels" . | nindent 8 }}
+        {{- include "inecuria.commonLabels" . | nindent 8 }}
         app.kubernetes.io/component: {{ .Values.app.name }}
       # Annotations can be used to attach arbitrary information to Pods. Similar to Labels.
       annotations:
@@ -83,7 +83,7 @@ spec:
           # Can load environment variables directly from ConfigMaps and Secrets
           envFrom:
             - secretRef:
-                name: {{ template "failed-imports.fullname" . }}
+                name: {{ template "inecuria.fullname" . }}
           # Readiness Probes are used to determine when a Pod is Ready.
           # A Pod which is not Ready will taken out of a Service, meaning it will no longer receive web traffic.
           # This mostly affects HTTP and RPC applications.
@@ -148,7 +148,7 @@ spec:
             - labelSelector:
                 matchLabels:
                   app.kubernetes.io/instance: {{ .Release.Name }}
-                  app.kubernetes.io/name: {{ template "failed-imports.name" . }}
+                  app.kubernetes.io/name: {{ template "inecuria.name" . }}
                   app.kubernetes.io/component: {{ .Values.app.name }}
                   app.kubernetes.io/version: {{ quote .Chart.AppVersion }}
               topologyKey: "kubernetes.io/hostname"

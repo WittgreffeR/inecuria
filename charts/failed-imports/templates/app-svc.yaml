@@ -10,10 +10,10 @@ apiVersion: v1
 kind: Service
 metadata:
   # Name based on the Release name
-  name: {{ template "failed-imports.app.fullname" . }}
+  name: {{ template "inecuria.app.fullname" . }}
   # Standard set of labels for consistency
   labels:
-    {{- include "failed-imports.commonLabels" . | nindent 4 }}
+    {{- include "inecuria.commonLabels" . | nindent 4 }}
     app.kubernetes.io/component: {{ .Values.app.name }}
 spec:
   # There is different types of Services.
@@ -30,5 +30,5 @@ spec:
   # You probably want to select all the Pods controlled by the Deployment, so should use the same selector.
   selector:
     app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/name: {{ template "failed-imports.name" . }}
+    app.kubernetes.io/name: {{ template "inecuria.name" . }}
     app.kubernetes.io/component: {{ .Values.app.name }}

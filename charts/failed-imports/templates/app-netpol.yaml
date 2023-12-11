@@ -8,10 +8,10 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   # Name based on Release name
-  name: {{ template "failed-imports.app.fullname" . }}
+  name: {{ template "inecuria.app.fullname" . }}
   # Standard set of labels for consistency
   labels:
-    {{- include "failed-imports.commonLabels" . | nindent 4 }}
+    {{- include "inecuria.commonLabels" . | nindent 4 }}
     app.kubernetes.io/component: {{ .Values.app.name }}
 spec:
   # Select which Pods that the NetworkPolicy applies to.
@@ -19,7 +19,7 @@ spec:
   podSelector:
     matchLabels:
       app.kubernetes.io/instance: {{ .Release.Name }}
-      app.kubernetes.io/name: {{ template "failed-imports.name" . }}
+      app.kubernetes.io/name: {{ template "inecuria.name" . }}
       app.kubernetes.io/component: {{ .Values.app.name }}
   policyTypes:
     - Ingress

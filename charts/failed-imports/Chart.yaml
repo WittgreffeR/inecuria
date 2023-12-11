@@ -3,12 +3,12 @@
 # Version number will be v2 for now.
 apiVersion: v2
 # Name MUST match the name of the directory
-name: failed-imports
+name: inecuria
 # A description is useful to know what it does
 description: Failed API
 # Allows for us to go from a deployed Chart back to the source repository
 sources:
-  - https://gitlab.com/tdi-sustainability/data/failed-imports-service
+  - https://gitlab.com/tdi-sustainability/data/inecuria-service
 # version is used for versioning charts.
 # However we do not push our charts to a chart repository so we do not worry about this value.
 version: 1.0.0

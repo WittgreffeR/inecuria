@@ -3,16 +3,16 @@ This is the Kubernetes Ingress Resource which describes how our application is a
 This will get added to our Ingress Controller.
 */}}
 {{- if .Values.app.ingress.enabled -}}
-{{- $serviceName := include "failed-imports.app.fullname" . -}}
+{{- $serviceName := include "inecuria.app.fullname" . -}}
 {{- $servicePort := .Values.app.service.port -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   # Name based on Release name
-  name: {{ template "failed-imports.app.fullname" . }}
+  name: {{ template "inecuria.app.fullname" . }}
   # Standard set of labels for consistency
   labels:
-    {{- include "failed-imports.commonLabels" . | nindent 4 }}
+    {{- include "inecuria.commonLabels" . | nindent 4 }}
     app.kubernetes.io/component: {{ .Values.app.name }}
   # Ingress resource annotations are generally very important.
   # They can be used to add IP whitelisting, rate limiting, authentication, etc, all controlled by the Ingress Controller.

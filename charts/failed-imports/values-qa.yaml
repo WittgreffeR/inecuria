@@ -5,15 +5,9 @@ app:
     env:
       INTEGRATE_WITH_SENTRY: false
       AWS_STORAGE_BUCKET_NAME: failed-imports-logos-qa
-      SERVER_EMAIL: no-reply-test@tdi-digital.com
-      FAILED_IMPORTS_HOST: failed-imports-test
-
-  emailLatestFailures:
-    values:
-      emails: digital@tdi-sustainability.com
 
   ingress:
     hosts:
-      - failed-imports-test.tdi-digital.com
+      - inecuria.com
     annotations:
       nginx.ingress.kubernetes.io/whitelist-source-range: "0.0.0.0/0"

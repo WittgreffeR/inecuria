@@ -1,1 +1,1 @@
-PRODUCT_NAME = "Failed Imports"
+PRODUCT_NAME = "Inecuria Wiki"

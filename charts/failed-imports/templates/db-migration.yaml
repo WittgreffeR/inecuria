@@ -1,9 +1,9 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ template "failed-imports.fullname" . }}-db-migration
+  name: {{ template "inecuria.fullname" . }}-db-migration
   labels:
-    {{- include "failed-imports.commonLabels" . | nindent 4 }}
+    {{- include "inecuria.commonLabels" . | nindent 4 }}
     app.kubernetes.io/component: db-migration
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
@@ -13,9 +13,9 @@ spec:
   activeDeadlineSeconds: 300
   template:
     metadata:
-      name: {{ template "failed-imports.fullname" . }}-db-migration
+      name: {{ template "inecuria.fullname" . }}-db-migration
       labels:
-        {{- include "failed-imports.commonLabels" . | nindent 8 }}
+        {{- include "inecuria.commonLabels" . | nindent 8 }}
         app.kubernetes.io/component: db-migration
     spec:
       restartPolicy: Never
@@ -29,7 +29,7 @@ spec:
           ]
           envFrom:
             - secretRef:
-                name: {{ template "failed-imports.fullname" . }}-db-migration-secrets
+                name: {{ template "inecuria.fullname" . }}-db-migration-secrets
           env:
             {{- range $key, $value := .Values.app.env }}
             - name: "{{ $key }}"

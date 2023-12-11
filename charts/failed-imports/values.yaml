@@ -48,25 +48,6 @@ app:
     hosts: []
 
 
-  purgeOldImports:
-    onDeploy:
-      enabled: true
-    cron:
-      enabled: true
-      schedule: "0 0 * * *"
-    days: 7
-
-  emailLatestFailures:
-    onDeploy:
-      enabled: false
-    cron:
-      enabled: true
-      schedule: "0 0 * * 0"
-    values:
-      days: 7
-      emails: rwittgreffe@tdi-sustainability.com
-
-
   django:
     name: django
     
