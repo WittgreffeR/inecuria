@@ -1,6 +1,6 @@
 {
-    "author": "TDi Digital <digital@tdi-sustainability.com> (https://www.tdi-sustainability.com)",
-    "name": "failed-imports.tdi-digital.com",
+    "author": "Nazuvera",
+    "name": "inceuria.com",
     "version": "1.0.0",
     "description": "",
     "browserslist": [
@@ -63,7 +63,7 @@
     "private": true,
     "repository": {
       "type": "git",
-      "url": "git+https://gitlab.com/tdi-sustainability/data/failed-imports-service.git"
+      "url": "git+https://github.com/WittgreffeR/inecuria.git"
     },
     "scripts": {
       "build": "webpack --config config/webpack/webpack.dev.config.js --mode=development",

@@ -3,12 +3,12 @@ environments:
   qa:
     values:
       - kubeContext: arn:aws:eks:eu-west-1:827570723211:cluster/cluster-qa
-      - namespace: failed-imports
+      - namespace: inecuria
       - releasePrefix: ""
   production:
     values:
       - kubeContext: arn:aws:eks:eu-west-1:827570723211:cluster/cluster-prod
-      - namespace: failed-imports
+      - namespace: inecuria
       - releasePrefix: ""
 
 ---
@@ -27,14 +27,14 @@ templates:
 
 # Configuration the Helm releases
 releases:
-  - chart: "./charts/failed-imports"
+  - chart: "./charts/inecuria"
     labels:
       # Release Name without any prefix
-      name: "failed-imports"
+      name: "inecuria"
     <<: *name
     # Namespace comes from the environment
     namespace: "{{ .Environment.Values.namespace }}"
     values:
-      - "./charts/failed-imports/values-{{ .Environment.Name }}.yaml"
+      - "./charts/inecuria/values-{{ .Environment.Name }}.yaml"
     secrets:
-      - "./charts/failed-imports/secrets.{{ .Environment.Name }}.yaml"
+      - "./charts/inecuria/secrets.{{ .Environment.Name }}.yaml"

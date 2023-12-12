@@ -9,7 +9,7 @@ docker-build-and-push:
     AWS_ACCESS_KEY: $AWS_ACCESS_KEY
     AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
     ECR_ROOT: 827570723211.dkr.ecr.eu-west-1.amazonaws.com
-    IMAGE_TAG: $ECR_ROOT/tdi/failed-imports:$CI_COMMIT_SHORT_SHA
+    IMAGE_TAG: $ECR_ROOT/tdi/inecuria:$CI_COMMIT_SHORT_SHA
     GLIBC_VERSION: 2.35-r0
   before_script:
     # dependencies

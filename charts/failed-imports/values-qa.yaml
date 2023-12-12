@@ -4,7 +4,7 @@ app:
   django:
     env:
       INTEGRATE_WITH_SENTRY: false
-      AWS_STORAGE_BUCKET_NAME: failed-imports-logos-qa
+      AWS_STORAGE_BUCKET_NAME: inecuria-logos-qa
 
   ingress:
     hosts:

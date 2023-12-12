@@ -54,7 +54,7 @@ app:
     image:
       pullPolicy: IfNotPresent
       # The container repository from where the image is pulled
-      repository: 827570723211.dkr.ecr.eu-west-1.amazonaws.com/tdi/failed-imports
+      repository: 827570723211.dkr.ecr.eu-west-1.amazonaws.com/tdi/inecuria
       tag: # Uses AppVersion by default
     
     # Which port does the application run on.
