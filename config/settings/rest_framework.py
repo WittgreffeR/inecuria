@@ -9,7 +9,7 @@ REST_FRAMEWORK = {
     ],
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
     "DEFAULT_AUTHENTICATION_CLASSES": [],
-    "DEFAULT_VERSIONING_CLASS": "failed_imports.core.versioning.AcceptVersionHeaderVersioning",
+    "DEFAULT_VERSIONING_CLASS": "inecuria.core.versioning.AcceptVersionHeaderVersioning",
 }
 
 ENABLE_REST_FRAMEWORK_PERMISSIONS = env.bool(

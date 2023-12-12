@@ -5,10 +5,10 @@ apiVersion: v2
 # Name MUST match the name of the directory
 name: inecuria
 # A description is useful to know what it does
-description: Failed API
+description: Inecuria Wiki
 # Allows for us to go from a deployed Chart back to the source repository
 sources:
-  - https://gitlab.com/tdi-sustainability/data/inecuria-service
+  - https://github.com/WittgreffeR/inecuria
 # version is used for versioning charts.
 # However we do not push our charts to a chart repository so we do not worry about this value.
 version: 1.0.0

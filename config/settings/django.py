@@ -23,9 +23,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    "failed_imports.api",
-    "failed_imports.core",
-    "failed_imports.site",
+    "inecuria.api",
+    "inecuria.core",
+    "inecuria.site",
 ]
 
 MIDDLEWARE = [
@@ -46,7 +46,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": ["failed_imports/templates"],
+        "DIRS": ["inecuria/templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

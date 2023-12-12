@@ -7,7 +7,7 @@
 !manage.py
 !Pipfile
 !Pipfile.lock
-!failed_imports
+!inecuria
 !static_src
 !.babelrc
 !postcss.config.js
